@@ -303,11 +303,11 @@ def eval_single(
     else:
         extracted_dir = extraction
 
-    make_file_dir = find_makefile(extracted_dir)
-    if make_file_dir is None:
-        return "Makefile not found"
+    # make_file_dir = find_makefile(extracted_dir)
+    # if make_file_dir is None:
+    #     return "Makefile not found"
     try:
-        bin_path = build_binary(make_file_dir, entry_nos)
+        bin_path = build_binary(extracted_dir, entry_nos)
     except FileNotFoundError:
         return "Couldn't compile binary"
 

@@ -57,26 +57,32 @@ submission directory
 """
 def build_binary(submission_dir: Path, entry_nos: list[str]) -> Path:
     output_dir = Path("/tmp/cop290/lab1_build/")
-
     output_dir.mkdir(parents=True, exist_ok=True)
-
+    
     out_binary_name = "spreadsheet" + "_".join(entry_nos)
+
+    # If Cargo.toml is not found in submission_dir, search for it in subdirectories.
+    if not (submission_dir / "Cargo.toml").exists():
+        for sub in submission_dir.iterdir():
+            if (sub / "Cargo.toml").exists():
+                submission_dir = sub
+                break
 
     try:
         subprocess.run(
-            ["make"],
+            ["cargo", "build", "--release"],
             cwd=submission_dir,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-
-        binary_path = submission_dir / "target" / "release" / "spreadsheet"
-        if not os.path.exists(binary_path):
+        
+        binary_path = submission_dir / "target" / "release" / "cop"
+        if not binary_path.exists():
             raise FileNotFoundError(
                 f"Expected binary '{out_binary_name}' not found in {submission_dir}/target/release"
             )
-
+        
         shutil.copy2(binary_path, output_dir / out_binary_name)
     except subprocess.CalledProcessError as e:
         print(f"Make failed: {e.stderr.decode()}")
